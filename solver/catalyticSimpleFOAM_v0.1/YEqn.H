@@ -27,7 +27,7 @@ tmp<fv::convectionScheme<scalar> > mvConvection
 	    fvScalarMatrix YiEqn
 	    (
 		mvConvection->fvmDiv(phi, Yi)
-	      - fvm::laplacian(rho*Dmixi, Yi)
+	      - fvm::laplacian(turbulence->mut()+rho*Dmixi, Yi)
 	     ==
 	      	//R_[i] +
 		fvOptions(rho, Yi)
