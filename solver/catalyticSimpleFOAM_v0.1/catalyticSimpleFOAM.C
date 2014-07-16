@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 	    #include "properties.H"
             #include "UEqn.H"
             #include "YEqn.H"
-            #include "EEqn.H"
+            //#include "EEqn.H"
             #include "pEqn.H"
         }
 
