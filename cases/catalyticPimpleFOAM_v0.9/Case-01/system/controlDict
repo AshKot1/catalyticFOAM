@@ -1,0 +1,451 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     catalyticFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+//stopAt		writeNow;
+
+endTime         10.;
+
+deltaT          1.e-6;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  18;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.2;
+
+libs ("libCatalyticWall.so");
+
+// ************************************************************************* //
+
+/*
+functions
+{
+    x_0.005
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.005 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+        );
+    }
+
+
+    x_0.0055
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.0055 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+   
+   
+x_0.006
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.006 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+   
+       
+	x_0.007
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.007 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+    }
+    
+	x_0.008
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.008 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+   
+	x_0.009
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.009 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+   
+   x_0.01
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.001 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+   
+   x_0.015
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     true;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          sampledSurface;
+
+        sampledSurfaceDict
+        {
+                type 			cuttingPlane;
+                planeType           	pointAndNormal;
+                pointAndNormalDict
+                {
+                        basePoint       (0.015 0 0);  
+                        normalVector    (1 0 0);
+                }
+                source cells; // sample cells or boundaryFaces
+                interpolate true;
+        }
+
+        // Operation: areaAverage/sum/weightedAverage ...
+		operation       weightedAverage;
+		weightField     phix;
+        
+        fields
+        (
+        O2
+	    CH4
+	    CO
+	    H2
+        H2O
+	    CO2
+        p
+        U
+        T
+       );
+   }
+}
+
+
+
+
+
+
+
+
+
+
+*/

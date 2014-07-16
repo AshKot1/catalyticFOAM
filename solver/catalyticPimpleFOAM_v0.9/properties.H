@@ -1,0 +1,170 @@
+/*------------------------------------------------------------------------\
+|   catalyticFOAM                                                         |
+|   http://www.catalyticfoam.polimi.it/                                   |
+|                                                                         |
+|   Copyright (C) 2013 by Matteo Maestri and Alberto Cuoci                |
+|                                                                         |
+|   Contributors (2010-2013)                                              |
+|   Alberto Cuoci, Matteo Maestri, Tiziano Maffei                         |
+|   Sandro Goisis, Alessandra Osio, Matteo Calonaci, Federica Furnari     |
+|   Giancarlo Gentile, Filippo Manelli, Stefano Rebughini                 |
+|                                                                         |
+|   Last modified: 16 Apr 2013                                            |
+|-------------------------------------------------------------------------|
+|   License                                                               |
+|                                                                         |
+|   This file is part of catalyticFOAM.                                   |
+|                                                                         |
+|   catalyticFOAM is free software: you can redistribute it and/or modify |
+|   it under the terms of the GNU General Public License as published by  |
+|   the Free Software Foundation, either version 3 of the License, or     |
+|   (at your option) any later version.                                   |
+|                                                                         |
+|   catalyticFOAM is distributed in the hope that it will be useful,      |
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         |
+|   GNU General Public License for more details.                          |
+|                                                                         |
+|   You should have received a copy of the GNU General Public License     |
+|   along with catalyticFOAM. If not, see <http://www.gnu.org/licenses/>. |
+|                                                                         |
+\*-----------------------------------------------------------------------*/
+
+{
+	Info<< "Properties evaluation..." << endl;
+
+	OpenSMOKE::OpenSMOKEVectorDouble CpVector(thermodynamicsMapXML->NumberOfSpecies());
+	OpenSMOKE::OpenSMOKEVectorDouble Dmixvector(thermodynamicsMapXML->NumberOfSpecies());
+
+	// Internal fields
+	{
+		const scalarField& TCells = T.internalField();
+		const scalarField& pCells = p.internalField(); 
+
+		scalarField& cTotCells = cTot.internalField();
+		scalarField&  psiCells =  psi.internalField();
+		scalarField&  muCells  =  mu.internalField();
+		scalarField& lambdaCells = lambda.internalField();
+		scalarField& cpCells = cp.internalField();
+		scalarField& hCells = h.internalField();
+		scalarField& PMmixCells = PMmix.internalField();
+
+		forAll(TCells, celli)
+		{
+			thermodynamicsMapXML->SetPressure(pCells[celli]);
+			thermodynamicsMapXML->SetTemperature(TCells[celli]);
+	
+			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				massFractions[i+1] = Y[i].internalField()[celli];
+				
+			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,PMmixCells[celli],massFractions);
+
+			cTotCells[celli] = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
+			psiCells[celli]  = cTotCells[celli]*PMmixCells[celli]/pCells[celli];
+			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(hCells[celli], moleFractions);		// [J/kmol]
+			hCells[celli] /= PMmixCells[celli];															// [J/kg]
+			
+			//if (viscositySpecies == true)
+			{
+				transportMapXML->DynamicViscosity(muCells[celli],TCells[celli],moleFractions);
+			}
+
+			//if (diffusivitySpecies == true)
+			{
+				transportMapXML->MassDiffusionCoefficients(Dmixvector,TCells[celli], pCells[celli], moleFractions);
+				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+					Dmix[i].internalField()[celli] = Dmixvector[i+1];
+			}
+
+            if (energyEquation == true)
+            {
+				transportMapXML->ThermalConductivity(lambdaCells[celli],TCells[celli],moleFractions);
+                
+                thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(cpCells[celli], moleFractions);			//[J/Kmol/K]
+				cpCells[celli] = cpCells[celli]/PMmixCells[celli];
+			
+				if (iMassDiffusionContributionInEnergyEquation == true)
+				{
+					thermodynamicsMapXML->cpMolar_Species_From_MoleFractions(CpVector);
+					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+						CpSpecies[i].internalField()[celli] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+				}
+			}
+		}
+    }
+
+	// Boundaries
+	forAll(T.boundaryField(), patchi)
+	{
+		fvPatchScalarField& pp = p.boundaryField()[patchi];
+		fvPatchScalarField& pT = T.boundaryField()[patchi];
+        
+		fvPatchScalarField& pcTot = cTot.boundaryField()[patchi];
+		fvPatchScalarField& ppsi  = psi.boundaryField()[patchi];
+		fvPatchScalarField& pmu   = mu.boundaryField()[patchi];
+        fvPatchScalarField& plambda = lambda.boundaryField()[patchi];
+        fvPatchScalarField& pcp = cp.boundaryField()[patchi];
+        fvPatchScalarField& ph = h.boundaryField()[patchi];
+        fvPatchScalarField& pPMmix = PMmix.boundaryField()[patchi];
+        
+		forAll(pT, facei)
+		{
+			thermodynamicsMapXML->SetPressure(pp[facei]);
+			thermodynamicsMapXML->SetTemperature(pT[facei]);
+			
+			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				massFractions[i+1] = Y[i].boundaryField()[patchi][facei];
+
+			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,pPMmix[facei],massFractions);
+
+
+			pcTot[facei] = pp[facei]/(PhysicalConstants::R_J_kmol*pT[facei]);
+			ppsi[facei]  = pcTot[facei]*pPMmix[facei]/pp[facei];
+			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(ph[facei], moleFractions);		// [J/kmol]
+			ph[facei] /= pPMmix[facei];																// [J/kg]
+			
+
+			//if (viscositySpecies == true)
+			{
+				transportMapXML->DynamicViscosity(pmu[facei],pT[facei],moleFractions);
+			}
+			
+			//if (diffusivitySpecies == true)
+			{
+				transportMapXML->MassDiffusionCoefficients(Dmixvector,pT[facei], pp[facei], moleFractions);
+				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+					Dmix[i].boundaryField()[patchi][facei] = Dmixvector[i+1];
+			}
+
+            if (energyEquation == true)
+            {
+				transportMapXML->ThermalConductivity(plambda[facei],pT[facei],moleFractions);
+				
+				thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(pcp[facei], moleFractions);			//[J/Kmol/K]
+				pcp[facei] = pcp[facei]/pPMmix[facei];
+			
+				if (iMassDiffusionContributionInEnergyEquation == true)
+				{
+					thermodynamicsMapXML->cpMolar_Species_From_MoleFractions(CpVector);
+					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+						CpSpecies[i].boundaryField()[patchi][facei] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+				}
+			}
+
+            for(int i=0; i<indexCatalyst.size(); i++)
+            {
+                if (patchi == indexCatalyst[i])
+                {
+                    for(label i=0; i<Ygrad.size(); i++)
+						Ygrad[i].boundaryField()[patchi][facei] *= thermodynamicsMapXML->MW()[i+1]*AlfaCatalyst/Dmix[i].boundaryField()[patchi][facei]/(pp[facei]*ppsi[facei]); 
+			
+                    if(energyEquation == true)
+                    {
+                     	  grad_T.boundaryField()[patchi][facei] *= AlfaCatalyst/plambda[facei];
+                    }
+                }
+            }
+
+		}
+	}
+}

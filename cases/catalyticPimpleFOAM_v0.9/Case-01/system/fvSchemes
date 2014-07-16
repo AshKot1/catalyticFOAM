@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(p)         Gauss linear;
+    grad(U)         Gauss linear;
+}
+
+divSchemes
+{
+    default         Gauss linear;
+
+    div(U,p)	                    Gauss linear;
+    div(phi,h)	                    Gauss linear;
+    div((mu*dev2(grad(U).T())))	    Gauss linear;
+    div(phi,U)                      Gauss limitedLinearV 1;
+    div(phi,Yi_h)                   Gauss limitedLinear01 1;
+    div(phi,hs)                     Gauss limitedLinear 1;
+    div(phiU,p)                     Gauss limitedLinear 1;
+
+}
+
+laplacianSchemes
+{
+    default                      Gauss linear corrected;
+    laplacian(mu,U)	         Gauss linear corrected;
+    laplacian((rho*(1|A(U))),p)  Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+//    interpolate(HbyA)  linear;
+}
+
+snGradSchemes
+{
+    default         uncorrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p               ;
+}
+
+
+// ************************************************************************* //

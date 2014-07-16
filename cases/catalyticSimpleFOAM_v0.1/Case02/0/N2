@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      N2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.98517; 
+
+boundaryField
+{
+    reactingWall
+    {
+        type            	groovyBC;
+	fractionExpression 	"0";			// Neumann condition
+	value           	uniform 0.98517;	// Only af the first iteration
+
+	valueFraction   uniform 0;
+        refValue        uniform 1;
+        refGradient     uniform 1;        
+        
+	gradientExpression "catBC";
+	variables       "alfa=0.75;MW=28.014000;nu=0;kappa=1.e2;r=kappa*H2;R=nu*r;catBC=MW*alfa/Dmix_N2/rho*R;";
+        
+	evaluateDuringConstruction 0;
+	timelines       ();
+        lookuptables    ();
+    
+    }
+    inertWall
+    {
+        type            zeroGradient;
+    }
+
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 0.98517;
+    }
+    outlet
+    {
+	type            inletOutlet;
+        inletValue      uniform 0.98517;
+        value           uniform 0.98517;
+    }
+}
+
+
+// ************************************************************************* //
