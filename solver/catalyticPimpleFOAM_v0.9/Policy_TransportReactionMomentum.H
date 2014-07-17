@@ -43,9 +43,9 @@
 
 		// Chemical step
 		{
-//			double t0 = runTime.value() - runTime.deltaT().value();
-//			double tf = runTime.value();
-//			#include "chemistry.H"
+			double t0 = runTime.value() - runTime.deltaT().value();
+			double tf = runTime.value();
+			#include "chemistry.H"
 		}
 
 		#include "UEqn.H"

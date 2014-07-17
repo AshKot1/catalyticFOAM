@@ -17,13 +17,14 @@ FoamFile
 
     energyEquation   on; 
 
-    homogeneousReactions off;
+    homogeneousReactions on;
 
     heterogeneousReactions on;
 
     inertSpecie N2;
 
-    kineticsFolder       "../../../cases/KineticMechanisms/MethaneOnRhodiumUBI/MethaneOnRhodiumUBI";
+    //kineticsFolder       "../../../cases/KineticMechanisms/MethaneOnRhodiumUBI/MethaneOnRhodiumUBI";
+    kineticsFolder       "/home/alberto/OpenFOAM/alberto-2.3.x/mySolvers/catalyticFOAM/cases/KineticMechanisms/MethaneOnRhodiumUBI_WithHomogeneous/MethaneOnRhodiumUBI";
 
     spark off;
 

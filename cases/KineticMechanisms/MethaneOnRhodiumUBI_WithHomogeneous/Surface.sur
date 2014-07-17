@@ -1,0 +1,12 @@
+MATERIAL MAT-1
+
+SITE/RH_SURFACE/    SDEN/2.49E-9/
+    Rh(s)   
+END
+
+
+REACTIONS
+
+Rh(s) => Rh(s) 1 1 1
+
+END

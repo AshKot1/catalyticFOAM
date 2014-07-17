@@ -42,6 +42,8 @@ Description
 #include "kinetics/ReactionPolicy_Surface_CHEMKIN.h"
 #include "math/PhysicalConstants.h"
 #include "math/OpenSMOKEUtilities.h"
+#include "dictionary/OpenSMOKE_Dictionary.h"
+#include "ode/ODE_Parameters.h"
 
 // Maps
 #include "maps/ThermodynamicsMap_CHEMKIN.h"
@@ -53,7 +55,13 @@ Description
 // ODE system
 #include <stdio.h>
 #include "catalyticReactorClass.H"
-//#include "HomogeneousODE.H"
+#include "math/stiff-ode-solvers/StiffOdeSolverObject_Dense.h"
+
+// Homogeneous reactors
+#include "BatchReactorHomogeneousConstantPressure.H"
+#include "BatchReactorHomogeneousConstantPressure_ODE_Interface.H"
+#include "BatchReactorHomogeneousConstantVolume.H"
+#include "BatchReactorHomogeneousConstantVolume_ODE_Interface.H"
 
 #include "fvCFD.H"
 #include "multivariateScheme.H"

@@ -30,9 +30,11 @@
 |                                                                         |
 \*-----------------------------------------------------------------------*/
 
-void normalizeFractions(OpenSMOKE::OpenSMOKEVectorDouble &fractions, label patchi, label facei, double massFractionsTol)
+void normalizeFractions(Eigen::VectorXd& omega_plus_temperature, label patchi, label facei, double massFractionsTol)
 {
-    double sumFractions = fractions.SumElements();
+	double sumFractions = 0.;
+	for(int i=0; i < omega_plus_temperature.size()-1; i++)
+            sumFractions += omega_plus_temperature(i);
 
     if (sumFractions > 1.+massFractionsTol || sumFractions < 1.-massFractionsTol)
     {
@@ -48,19 +50,22 @@ void normalizeFractions(OpenSMOKE::OpenSMOKEVectorDouble &fractions, label patch
         }
     }
 
-    fractions /= sumFractions;
+	 for(int i=0; i < omega_plus_temperature.size()-1; i++)
+            omega_plus_temperature(i) /= sumFractions;
 }
 
-void normalizeFractions(OpenSMOKE::OpenSMOKEVectorDouble &fractions, label celli, double massFractionsTol)
+void normalizeFractions(Eigen::VectorXd& omega_plus_temperature, label celli, double massFractionsTol)
 {
-    double sumFractions = fractions.SumElements();
+	double sumFractions = 0.;
+    for(int i=0; i < omega_plus_temperature.size()-1; i++)
+            sumFractions += omega_plus_temperature(i);
 
-    if (sumFractions > 1+massFractionsTol || sumFractions < 1-massFractionsTol)
+    if (sumFractions > 1.+massFractionsTol || sumFractions < 1.-massFractionsTol)
     {
         Info << "WARNING: sum of mass-fractions = " << sumFractions << " in cell " << celli <<endl;
 
-        for(int i=1; i <= fractions.Size(); i++)
-            cout << i << ")\t" << fractions[i] << endl;
+        for(int i=0; i < omega_plus_temperature.size()-1; i++)
+            cout << i << ")\t" << omega_plus_temperature(i) << endl;
         
         if (time == 0)
         {
@@ -69,8 +74,9 @@ void normalizeFractions(OpenSMOKE::OpenSMOKEVectorDouble &fractions, label celli
             abort();
         }    
     }
-
-    fractions /= sumFractions;
+	
+	 for(int i=0; i < omega_plus_temperature.size()-1; i++)
+            omega_plus_temperature(i) /= sumFractions;
 }
 
 tmp<volScalarField> Rho(volScalarField& p, volScalarField& psi)

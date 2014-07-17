@@ -37,5 +37,14 @@
 	//- Memory allocation: gas-phase chemistry
 	OpenSMOKE::OpenSMOKEVectorDouble omega(thermodynamicsMapXML->NumberOfSpecies());
 	
+	// Batch reactor homogeneous
+	BatchReactorHomogeneousConstantPressure batchReactorHomogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
+	BatchReactorHomogeneousConstantVolume batchReactorHomogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
+	
+	
+	OpenSMOKE::ODE_Parameters odeParameterBatchReactorHomogeneous;
+	//odeParameterBatchReactorHomogeneousSetRelativeTolerance(1e-7);
+	//odeParameterBatchReactorHomogeneousSetAbsoluteTolerance(1e-12);
+	
 
 
