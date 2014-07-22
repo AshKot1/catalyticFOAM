@@ -29,12 +29,17 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-// OpenSMOKE
-#include "OpenSMOKE_Definitions.h"
+// Basic header files
 #include <string>
 #include <iostream>
 #include <numeric>
+#include <stdio.h>
+
+// Eigen libraries
 #include <Eigen/Dense>
+
+// OpenSMOKE
+#include "OpenSMOKE_Definitions.h"
 
 // Base classes
 #include "thermo/ThermoPolicy_CHEMKIN.h"
@@ -43,7 +48,6 @@ Description
 #include "math/PhysicalConstants.h"
 #include "math/OpenSMOKEUtilities.h"
 #include "dictionary/OpenSMOKE_Dictionary.h"
-#include "ode/ODE_Parameters.h"
 
 // Maps
 #include "maps/ThermodynamicsMap_CHEMKIN.h"
@@ -52,9 +56,11 @@ Description
 #include "maps/KineticsMap_Surface_CHEMKIN.h"
 #include "maps/TransportPropertiesMap_CHEMKIN.h"
 
-// ODE system
-#include <stdio.h>
+// Additional classes
 #include "catalyticReactorClass.H"
+
+// ODE system
+#include "ode/ODE_Parameters.h"
 #include "math/stiff-ode-solvers/StiffOdeSolverObject_Dense.h"
 
 // Homogeneous reactors
@@ -63,15 +69,26 @@ Description
 #include "BatchReactorHomogeneousConstantVolume.H"
 #include "BatchReactorHomogeneousConstantVolume_ODE_Interface.H"
 
+// Heterogeneous reactors
+#include "BatchReactorHeterogeneousConstantPressure.H"
+#include "BatchReactorHeterogeneousConstantPressure_ODE_Interface.H"
+#include "BatchReactorHeterogeneousConstantVolume.H"
+#include "BatchReactorHeterogeneousConstantVolume_ODE_Interface.H"
+
+// OpenFOAM
 #include "fvCFD.H"
 #include "multivariateScheme.H"
 #include "pimpleControl.H"
 #include "fvIOoptionList.H"
+
+// Radiative heat transfer
 //#include "radiationModel.H"
 
 // Utilities
 //#include "Utilities.H"
 #include "userDefinedFunctions.H"
+
+enum odesolver_enum { ODESOLVER_OPENSMOKE, ODESOLVER_DVODE, ODESOLVER_DLSODE, ODESOLVER_DLSODA, ODESOLVER_CVODE, ODESOLVER_DASPK, ODESOLVER_MEBDF, ODESOLVER_RADAU5 } ;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -105,36 +122,35 @@ int main(int argc, char *argv[])
     
     while (runTime.run())
     {
-		#include "readTimeControls.H"
+	#include "readTimeControls.H"
         #include "compressibleCourantNo.H"
         #include "setDeltaT.H"
 
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
         
-      //  if (strangAlgorithm == "ReactionTransport")
-	//	{
-	//		#include "Policy_ReactionTransport.H"
-	//	}
-	//	else if (strangAlgorithm == "TransportReaction")
-	//	{
-	//		#include "Policy_TransportReaction.H"
-	//	}
-	//	else if (strangAlgorithm == "TransportReactionMomentum")
-	//	{
-			#include "Policy_TransportReactionMomentum.H"
-	//	}
-	//	else if (strangAlgorithm == "ReactionTransportReaction")
-	//	{
-	//		#include "Policy_ReactionTransportReaction.H"
-	//	}
-	//	else if (strangAlgorithm == "ReactionTransportHybrid")
-	//	{
-	//		#include "Policy_ReactionTransportHybrid.H"
-	//	}
-		
-		
-		runTime.write();
+        if (strangAlgorithm == "ReactionTransport")
+	{
+		#include "Policy_ReactionTransport.H"
+	}
+	else if (strangAlgorithm == "TransportReaction")
+	{
+		#include "Policy_TransportReaction.H"
+	}
+	else if (strangAlgorithm == "TransportReactionMomentum")
+	{
+		#include "Policy_TransportReactionMomentum.H"
+	}
+	else if (strangAlgorithm == "ReactionTransportReaction")
+	{
+		#include "Policy_ReactionTransportReaction.H"
+	}
+	else if (strangAlgorithm == "ReactionTransportHybrid")
+	{
+		#include "Policy_ReactionTransportHybrid.H"
+	}
+			
+	runTime.write();
 
         Info	<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 				<< "  ClockTime = " << runTime.elapsedClockTime() << " s"

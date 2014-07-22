@@ -30,14 +30,14 @@
 |                                                                         |
 \*-----------------------------------------------------------------------*/
 
-#ifndef BatchReactorHomogeneousConstantPressure_H
-#define	BatchReactorHomogeneousConstantPressure_H
+#ifndef BatchReactorHeterogeneousConstantPressure_H
+#define	BatchReactorHeterogeneousConstantPressure_H
 
-class BatchReactorHomogeneousConstantPressure
+class BatchReactorHeterogeneousConstantPressure
 {
 public:
 
-	BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
+	BatchReactorHeterogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
 							OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap);
 
 	void SetReactor( const double P0 );
@@ -71,7 +71,7 @@ private:
 	
 };
 
-BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
+BatchReactorHeterogeneousConstantPressure::BatchReactorHeterogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
 								OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap):
 	thermodynamicsMap_(thermodynamicsMap), 
 	kineticsMap_(kineticsMap)
@@ -85,12 +85,12 @@ BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure
 		ChangeDimensions(NC_, &R_, true);
 	}
 
-void BatchReactorHomogeneousConstantPressure::SetReactor( const double P0 )
+void BatchReactorHeterogeneousConstantPressure::SetReactor( const double P0 )
 {
 	P0_    = P0;
 }
 
-int BatchReactorHomogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
+int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
 {
 	// Recover mass fractions
 	#ifdef CHECK_MASSFRACTIONS
@@ -107,7 +107,7 @@ int BatchReactorHomogeneousConstantPressure::Equations(const double t, const Ope
 	// Calculates the pressure and the concentrations of species
 	thermodynamicsMap_.MoleFractions_From_MassFractions(x_, MW_, omega_);
 	cTot_ = P0_/PhysicalConstants::R_J_kmol/T_;
-    rho_ = cTot_*MW_;
+    	rho_ = cTot_*MW_;
 	Product(cTot_, x_, &c_);
 
 	// Calculates thermodynamic properties
@@ -135,9 +135,9 @@ int BatchReactorHomogeneousConstantPressure::Equations(const double t, const Ope
 	return 0;
 }
 
-int BatchReactorHomogeneousConstantPressure::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
+int BatchReactorHeterogeneousConstantPressure::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
 {
 }
 
-#endif // BatchReactorHomogeneousConstantPressure_H
+#endif // BatchReactorHeterogeneousConstantPressure_H
 

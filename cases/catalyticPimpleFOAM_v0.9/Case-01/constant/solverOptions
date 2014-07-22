@@ -30,18 +30,28 @@ FoamFile
 
     alfaCatalyst 1500.0;
 
-    massFractionsTolerance 1.e-9;
-
+	// Species transport equations
+   	massFractionsTolerance 1.e-9;
     diffusivityCorrection "semi-implicit";
     massDiffusionContributionInEnergyEquation on;
 
-    strangAlgorithm "TransportReactionMomentum";
+	// Numerical algorithm
+	strangAlgorithm "TransportReactionMomentum";
 
-    relativeTolerance 1.2e-05;
-    absoluteTolerance 1.0e-10;
-    
-    radiativeHeatTransfer   off;
-    environmentTemperature 300.;
+	// Batch reactors
+	constantPressure 	on;
+	homogeneousODESolver 	OpenSMOKE;
+	heterogeneousODESolver 	OpenSMOKE;
+
+	// Tolerances
+	relToleranceHomogeneous 1e-6;
+	absToleranceHomogeneous 1e-12;
+	relToleranceHeterogeneous 1e-6;
+	absToleranceHeterogeneous 1e-12;
+
+	// Radiative heat transfer
+	radiativeHeatTransfer   off;
+	environmentTemperature 300.;
     
 
 // ************************************************************************* //

@@ -31,18 +31,6 @@
 \*-----------------------------------------------------------------------*/
 
 {
-	#include "readTimeControls.H"
-	#include "readPISOControls.H"
-	#include "compressibleCourantNo.H"
-	#include "setDeltaT.H"
-
-	runTime++;
-	Info<< "Time = " << runTime.timeName() << nl << endl;
-	
-	// Chemical step
-	//#include "properties.H"
-	//#include "updateGradients.H"
-
 	{
 		double t0 = runTime.value() - runTime.deltaT().value();
 	   	double tf = runTime.value();
@@ -54,25 +42,17 @@
 
 	#include "rhoEqn.H"
 
-	for (label ocorr=1; ocorr <= nOuterCorr; ocorr++)
+	while (pimple.loop())
 	{
 
 		#include "UEqn.H"
 		#include "YEqn.H"
 		#include "TEqn.H"
 
-		// --- PISO loop
-		for (int corr=1; corr<=nCorr; corr++)
+		// --- Pressure corrector loop
+		while (pimple.correct())
 		{
 			#include "pEqn.H"
 		}
 	}
-
-	runTime.write();
-
-	#include "conversion.H"
-
-
-	Info	<< " ExecutionTime = " 	<< runTime.elapsedCpuTime() 	<< " s"
-		<< " ClockTime = " 	<< runTime.elapsedClockTime() 	<< " s"	<< nl << endl;
 }

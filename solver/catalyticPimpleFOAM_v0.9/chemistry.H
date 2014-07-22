@@ -64,16 +64,22 @@
 							y0(i) = Y[i].internalField()[celli];
 						y0(NC) = TCells[celli];
 						
-						//batchReactorHomogeneousConstantVolume.SetReactor(vCells[celli], pCells[celli], rhoCells[celli]);
-						batchReactorHomogeneousConstantPressure.SetReactor(pCells[celli]);
-						OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_OpenSMOKE odebatch(batchReactorHomogeneousConstantPressure);
-						OpenSMOKE::StiffOdeSolverObject_Dense o( y0, t0, &odebatch, odeParameterBatchReactorHomogeneous.linear_algebra() );
-			
-						o.SetMinimumConstraints(yMin);
-						o.SetMaximumConstraints(yMax);
-						o.SetTollAbs(odeParameterBatchReactorHomogeneous.absolute_tolerance());
-						o.SetTollRel(odeParameterBatchReactorHomogeneous.relative_tolerance());
-						yf = o(tf,tf);
+						if (constantPressure == true)
+						{
+							batchReactorHomogeneousConstantPressure.SetReactor(pCells[celli]);
+							o_homogeneous( y0, t0, &odebatch_homogeneous_constantpressure );
+						}
+						else
+						{
+							batchReactorHomogeneousConstantVolume.SetReactor(vCells[celli], pCells[celli], rhoCells[celli]);
+							o_homogeneous( y0, t0, &odebatch_homogeneous_constantvolume );
+						}
+						
+						o_homogeneous.SetMinimumConstraints(yMin);
+						o_homogeneous.SetMaximumConstraints(yMax);
+						o_homogeneous.SetTollAbs(odeParameterBatchReactorHomogeneous.absolute_tolerance());
+						o_homogeneous.SetTollRel(odeParameterBatchReactorHomogeneous.relative_tolerance());
+						yf = o_homogeneous(tf,tf);
 					}
 	
 	
@@ -234,70 +240,4 @@
     	Info<< " * T gas min/max   = " << min(T).value() << ", " << max(T).value() << endl;
 }
 
-
-
-
-
-
-
-				//- Solving for celli:	
-			/*	{
-				odeSystemObject_Heterogeneous->ode.SetVolume(catalyticReactors[counter].volume);
-				odeSystemObject_Heterogeneous->ode.SetFaceAreas(catalyticReactors[counter].faceArea);
-				odeSystemObject_Heterogeneous->ode.SetPressure(pCells[celli]);
-
-				#if BZZMATH_SUPPORT == 1
-
-					for(unsigned int i=0;i<NC;i++)
-			    			odeSystemObject_Heterogeneous->ode.Y0[i+1] = Y[i].internalField()[celli];
-					odeSystemObject_Heterogeneous->ode.Y0[NC+1] = TCells[celli];
-
-					//- Cycle on number of edges
-					for (int edge=1; edge<=catalyticReactors[counter].numberOfFaces; edge++)
-					{
-						int baseCounter = NC+1 + NS*(edge-1);
-
-						for(int i=0; i<NS;i++)
-						    odeSystemObject_Heterogeneous->ode.Y0[baseCounter+(i+1)] = 
-						siteFraction[i].boundaryField()[catalyticReactors[counter].patchIndex[edge]][catalyticReactors[counter].faceIndex[edge]];
-					}
-
-					ode_Heterogeneous_1.SetMinimumConstraints(odeSystemObject_Heterogeneous->ode.YMin);
-					ode_Heterogeneous_1.SetMaximumConstraints(odeSystemObject_Heterogeneous->ode.YMax);
-
-					//FromOSToBzz(X0Catalytic[isNeighbourCell[celli]], bzz_X0Catalytic[isNeighbourCell[celli]]);
-					ode_Heterogeneous_1(odeSystemObject_Heterogeneous->ode.Y0, t0, odeSystemObject_Heterogeneous);
-					odeSystemObject_Heterogeneous->ode.YF = ode_Heterogeneous_1(tf,tf);
-					FromBzzToC(odeSystemObject_Heterogeneous->ode.YF, &yF[0]);
-					
-				#else
-					for(int i=0;i<NC;i++)
-			     			odeSystemObject_Heterogeneous->ode.Y0[i] = Y[i].internalField()[celli];
-		       		 	odeSystemObject_Heterogeneous->ode.Y0[NC] = TCells[celli];
-
-					//- Cycle on number of edges
-					for (int edge=1; edge<=catalyticReactors[counter].numberOfFaces; edge++)
-					{
-						int baseCounter = NC+1+NS*(edge-1);
-
-						for(int i=0; i<NS;i++)
-				    			odeSystemObject_Heterogeneous->ode.Y0[baseCounter+(i+1)-1] = siteFraction[i].boundaryField()[catalyticReactors[counter].patchIndex[edge]][catalyticReactors[counter].faceIndex[edge]];
-					}	
-
-					ode_Heterogeneous_1.SetMaximumNumberOfSteps(10000);
-					ode_Heterogeneous_1.SetAnalyticalJacobian(false);
-					//ode_Heterogeneous_1.SetAbsoluteTolerance(aTol);
-					//ode_Heterogeneous_1.SetRelativeTolerance(rTol);
-					ode_Heterogeneous_1.SetInitialValues(t0, odeSystemObject_Heterogeneous->ode.Y0);
-					ode_Heterogeneous_1.Solve(tf);
-					ode_Heterogeneous_1.Solution(yF);
-				#endif
-
-				yAdditional[0] = -odeSystemObject_Heterogeneous_1->ode.QReaction();
-				for(int i=1;i<=NC;i++)
-					yAdditional[i] = odeSystemObject_Heterogeneous_1->ode.Rgas()[i];
-				}
-*/
-				//	for (int i=0;i<N;i++)
-				//		std::cout << y0[i] << " " << yF[i] << std::endl;
 				

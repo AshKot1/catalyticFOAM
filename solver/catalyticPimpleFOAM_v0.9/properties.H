@@ -53,6 +53,10 @@
 		{
 			thermodynamicsMapXML->SetPressure(pCells[celli]);
 			thermodynamicsMapXML->SetTemperature(TCells[celli]);
+			
+			transportMapXML->SetPressure(pCells[celli]);
+			transportMapXML->SetTemperature(TCells[celli]);
+				
 	
 			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				massFractions[i+1] = Y[i].internalField()[celli];
@@ -66,26 +70,26 @@
 			
 			//if (viscositySpecies == true)
 			{
-				transportMapXML->DynamicViscosity(muCells[celli],TCells[celli],moleFractions);
+				transportMapXML->DynamicViscosity(muCells[celli],moleFractions);
 			}
 
 			//if (diffusivitySpecies == true)
 			{
-				transportMapXML->MassDiffusionCoefficients(Dmixvector,TCells[celli], pCells[celli], moleFractions);
+				transportMapXML->MassDiffusionCoefficients(Dmixvector, moleFractions);
 				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					Dmix[i].internalField()[celli] = Dmixvector[i+1];
 			}
 
             if (energyEquation == true)
             {
-				transportMapXML->ThermalConductivity(lambdaCells[celli],TCells[celli],moleFractions);
+				transportMapXML->ThermalConductivity(lambdaCells[celli],moleFractions);
                 
-                thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(cpCells[celli], moleFractions);			//[J/Kmol/K]
+                		thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(cpCells[celli], moleFractions);			//[J/Kmol/K]
 				cpCells[celli] = cpCells[celli]/PMmixCells[celli];
 			
 				if (iMassDiffusionContributionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->cpMolar_Species_From_MoleFractions(CpVector);
+					thermodynamicsMapXML->cpMolar_Species(CpVector);
 					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 						CpSpecies[i].internalField()[celli] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
 				}
@@ -102,15 +106,18 @@
 		fvPatchScalarField& pcTot = cTot.boundaryField()[patchi];
 		fvPatchScalarField& ppsi  = psi.boundaryField()[patchi];
 		fvPatchScalarField& pmu   = mu.boundaryField()[patchi];
-        fvPatchScalarField& plambda = lambda.boundaryField()[patchi];
-        fvPatchScalarField& pcp = cp.boundaryField()[patchi];
-        fvPatchScalarField& ph = h.boundaryField()[patchi];
-        fvPatchScalarField& pPMmix = PMmix.boundaryField()[patchi];
+        	fvPatchScalarField& plambda = lambda.boundaryField()[patchi];
+       		fvPatchScalarField& pcp = cp.boundaryField()[patchi];
+        	fvPatchScalarField& ph = h.boundaryField()[patchi];
+        	fvPatchScalarField& pPMmix = PMmix.boundaryField()[patchi];
         
 		forAll(pT, facei)
 		{
 			thermodynamicsMapXML->SetPressure(pp[facei]);
 			thermodynamicsMapXML->SetTemperature(pT[facei]);
+
+			transportMapXML->SetPressure(pp[facei]);
+			transportMapXML->SetTemperature(pT[facei]);
 			
 			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				massFractions[i+1] = Y[i].boundaryField()[patchi][facei];
@@ -126,26 +133,26 @@
 
 			//if (viscositySpecies == true)
 			{
-				transportMapXML->DynamicViscosity(pmu[facei],pT[facei],moleFractions);
+				transportMapXML->DynamicViscosity(pmu[facei],moleFractions);
 			}
 			
 			//if (diffusivitySpecies == true)
 			{
-				transportMapXML->MassDiffusionCoefficients(Dmixvector,pT[facei], pp[facei], moleFractions);
+				transportMapXML->MassDiffusionCoefficients(Dmixvector,moleFractions);
 				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					Dmix[i].boundaryField()[patchi][facei] = Dmixvector[i+1];
 			}
 
             if (energyEquation == true)
             {
-				transportMapXML->ThermalConductivity(plambda[facei],pT[facei],moleFractions);
+				transportMapXML->ThermalConductivity(plambda[facei],moleFractions);
 				
 				thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(pcp[facei], moleFractions);			//[J/Kmol/K]
 				pcp[facei] = pcp[facei]/pPMmix[facei];
 			
 				if (iMassDiffusionContributionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->cpMolar_Species_From_MoleFractions(CpVector);
+					thermodynamicsMapXML->cpMolar_Species(CpVector);
 					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 						CpSpecies[i].boundaryField()[patchi][facei] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
 				}

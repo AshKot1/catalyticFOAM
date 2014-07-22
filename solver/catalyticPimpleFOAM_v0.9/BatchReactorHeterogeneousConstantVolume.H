@@ -30,17 +30,17 @@
 |                                                                         |
 \*-----------------------------------------------------------------------*/
 
-#ifndef BatchReactorHomogeneousConstantPressure_H
-#define	BatchReactorHomogeneousConstantPressure_H
+#ifndef BatchReactorHeterogeneousConstantVolume_H
+#define	BatchReactorHeterogeneousConstantVolume_H
 
-class BatchReactorHomogeneousConstantPressure
+class BatchReactorHeterogeneousConstantVolume
 {
 public:
 
-	BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
-							OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap);
+	BatchReactorHeterogeneousConstantVolume(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
+					OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap);
 
-	void SetReactor( const double P0 );
+	void SetReactor( const double V0, const double P0, const double rho0);
 
 	unsigned int NumberOfEquations() { return NE_; }
 
@@ -51,12 +51,13 @@ public:
 private:
 
 	double T_;
-	double P0_;
-	double rho_;
+	double P_;
+	double V0_;
+	double rho0_;
 
 	double cTot_;
 	double MW_;
-	double CpMixMass_;
+	double CvMixMass_;
 
 	unsigned int NC_;
 	unsigned int NE_;
@@ -71,7 +72,7 @@ private:
 	
 };
 
-BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
+BatchReactorHeterogeneousConstantVolume::BatchReactorHeterogeneousConstantVolume(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
 								OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap):
 	thermodynamicsMap_(thermodynamicsMap), 
 	kineticsMap_(kineticsMap)
@@ -85,12 +86,14 @@ BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure
 		ChangeDimensions(NC_, &R_, true);
 	}
 
-void BatchReactorHomogeneousConstantPressure::SetReactor( const double P0 )
+void BatchReactorHeterogeneousConstantVolume::SetReactor( const double V0, const double P0, const double rho0)
 {
-	P0_    = P0;
+	P_    = P0;
+	V0_   = V0;
+	rho0_ = rho0;
 }
 
-int BatchReactorHomogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
+int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
 {
 	// Recover mass fractions
 	#ifdef CHECK_MASSFRACTIONS
@@ -106,38 +109,41 @@ int BatchReactorHomogeneousConstantPressure::Equations(const double t, const Ope
 
 	// Calculates the pressure and the concentrations of species
 	thermodynamicsMap_.MoleFractions_From_MassFractions(x_, MW_, omega_);
-	cTot_ = P0_/PhysicalConstants::R_J_kmol/T_;
-    rho_ = cTot_*MW_;
+	cTot_ = rho0_/MW_;
 	Product(cTot_, x_, &c_);
+	P_ = cTot_ * PhysicalConstants::R_J_kmol * T_;
 
 	// Calculates thermodynamic properties
 	thermodynamicsMap_.SetTemperature(T_);
-	thermodynamicsMap_.SetPressure(P0_);
+	thermodynamicsMap_.SetPressure(P_);
 	
 	double CpMixMolar; 
 	thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-	CpMixMass_ = CpMixMolar / MW_;
+	CvMixMass_ = (CpMixMolar - PhysicalConstants::R_J_kmol) / MW_;
 
 	// Calculates kinetics
 	kineticsMap_.SetTemperature(T_);
-	kineticsMap_.SetPressure(P0_);
+	kineticsMap_.SetPressure(P_);
 	kineticsMap_.KineticConstants();
 	kineticsMap_.ReactionRates(c_);
 	kineticsMap_.FormationRates(&R_);
 	const double QR_ = kineticsMap_.HeatRelease(R_);
 
+	// Number of moles
+	const double sumMoleFormationRates = R_.SumElements();
+
 	// Recovering residuals
 	for (unsigned int i=1;i<=NC_;++i)	
-		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho_;
+		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho0_;
                 
-	dy[NC_+1]  = QR_ / (rho_*CpMixMass_);
+	dy[NC_+1]  = (QR_ + PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / (rho0_*CvMixMass_);
 
 	return 0;
 }
 
-int BatchReactorHomogeneousConstantPressure::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
+int BatchReactorHeterogeneousConstantVolume::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
 {
 }
 
-#endif // BatchReactorHomogeneousConstantPressure_H
+#endif // BatchReactorHeterogeneousConstantVolume_H
 

@@ -124,8 +124,7 @@ int BatchReactorHomogeneousConstantVolume::Equations(const double t, const OpenS
 	// Calculates kinetics
 	kineticsMap_.SetTemperature(T_);
 	kineticsMap_.SetPressure(P_);
-	kineticsMap_.ReactionEnthalpiesAndEntropies();
-	kineticsMap_.ArrheniusKineticConstants();
+	kineticsMap_.KineticConstants();
 	kineticsMap_.ReactionRates(c_);
 	kineticsMap_.FormationRates(&R_);
 	const double QR_ = kineticsMap_.HeatRelease(R_);
