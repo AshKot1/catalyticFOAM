@@ -40,31 +40,10 @@
 	// Batch reactor homogeneous
 	BatchReactorHomogeneousConstantPressure batchReactorHomogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
 	BatchReactorHomogeneousConstantVolume   batchReactorHomogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
+	#include "createHomogeneousOdeSolvers.H"
 
 	// Batch reactor heterogeneous
 	BatchReactorHeterogeneousConstantPressure 	batchReactorHeterogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
 	BatchReactorHeterogeneousConstantVolume 	batchReactorHeterogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
-	
-	// Batch reactor homogeneous: ode parameters
-	OpenSMOKE::ODE_Parameters odeParameterBatchReactorHomogeneous;
-	odeParameterBatchReactorHomogeneous.SetRelativeTolerance(relToleranceHomogeneousReactors);
-	odeParameterBatchReactorHomogeneous.SetAbsoluteTolerance(absToleranceHomogeneousReactors);
-
-	// Batch reactor heterogeneous: ode parameters
-	OpenSMOKE::ODE_Parameters odeParameterBatchReactorHeterogeneous;
-	odeParameterBatchReactorHeterogeneous.SetRelativeTolerance(relToleranceHeterogeneousReactors);
-	odeParameterBatchReactorHeterogeneous.SetAbsoluteTolerance(absToleranceHeterogeneousReactors);
-
-
-	// ODE Solver homogeneous
-	OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_OpenSMOKE 	odebatch_homogeneous_constantpressure(batchReactorHomogeneousConstantPressure);
-	OpenSMOKE::BatchReactorHomogeneousConstantVolume_ODE_OpenSMOKE 		odebatch_homogeneous_constantvolume(batchReactorHomogeneousConstantVolume);
-	OpenSMOKE::StiffOdeSolverObject_Dense o_homogeneous;
-
-	// ODE Solver heterogeneous
-	OpenSMOKE::BatchReactorHeterogeneousConstantPressure_ODE_OpenSMOKE 	odebatch_heterogeneous_constantpressure(batchReactorHeterogeneousConstantPressure);
-	OpenSMOKE::BatchReactorHeterogeneousConstantVolume_ODE_OpenSMOKE 	odebatch_heterogeneous_constantvolume(batchReactorHeterogeneousConstantVolume);
-	OpenSMOKE::StiffOdeSolverObject_Dense o_heterogeneous;
-	
-
+	#include "createHeterogeneousOdeSolvers.H"
 

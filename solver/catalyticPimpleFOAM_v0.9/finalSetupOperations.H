@@ -47,18 +47,22 @@
 
     #include "compressibleCreatePhi.H"
 
-	Info<< "Creating field dpdt\n" << endl;
-	volScalarField dpdt
+	Info<< "Creating field DpDt\n" << endl;
+	volScalarField DpDt
 	(
 		IOobject
 		(
-			"dpdt",
+			"DpDt",
 			runTime.timeName(),
 			mesh
 		),
 		mesh,
-		dimensionedScalar("dpdt", p.dimensions()/dimTime, 0)
+		dimensionedScalar("DpDt", p.dimensions()/dimTime, 0)
 	);
+
+	// Kinetic energy
+	Info<< "Creating field kinetic energy K\n" << endl;
+	volScalarField K("K", 0.5*magSqr(U));
 
 
 	multivariateSurfaceInterpolationScheme<scalar>::fieldTable fields;
@@ -68,9 +72,5 @@
 	}
 
 	// Spark
-	labelList ignCellsList;
-	label nIgnCells = 1;
-
-	if(spark == true)
-		#include "spark.H"
+	spark.Setup(mesh);
 

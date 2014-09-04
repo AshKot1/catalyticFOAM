@@ -41,6 +41,10 @@ public:
 							OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap);
 
 	void SetReactor( const double P0 );
+	
+	void SetEnergyEquation(const bool flag) { energyEquation_ = flag; }
+	
+	void SetCheckMassFractions( const bool flag ) { checkMassFractions_ = flag; };
 
 	unsigned int NumberOfEquations() { return NE_; }
 
@@ -69,6 +73,8 @@ private:
 	OpenSMOKE::OpenSMOKEVectorDouble c_;
 	OpenSMOKE::OpenSMOKEVectorDouble R_;
 	
+	bool checkMassFractions_;
+	bool energyEquation_;
 };
 
 BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
@@ -83,6 +89,9 @@ BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure
 		ChangeDimensions(NC_, &x_, true);
 		ChangeDimensions(NC_, &c_, true);
 		ChangeDimensions(NC_, &R_, true);
+		
+		checkMassFractions_ = false;
+		energyEquation_ = true;
 	}
 
 void BatchReactorHomogeneousConstantPressure::SetReactor( const double P0 )
@@ -93,13 +102,15 @@ void BatchReactorHomogeneousConstantPressure::SetReactor( const double P0 )
 int BatchReactorHomogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
 {
 	// Recover mass fractions
-	#ifdef CHECK_MASSFRACTIONS
-	for(unsigned int i=1;i<=NC_;++i)
-		omega_[i] = max(y[i], 0.);
-	#else
-	for(unsigned int i=1;i<=NC_;++i)
-		omega_[i] = y[i];
-	#endif
+	if (checkMassFractions_ == true)
+	{	for(unsigned int i=1;i<=NC_;++i)
+			omega_[i] = max(y[i], 0.);
+	}
+	else
+	{
+		for(unsigned int i=1;i<=NC_;++i)
+			omega_[i] = y[i];
+	}
 
 	// Recover temperature
 	T_ = y[NC_+1];
@@ -114,23 +125,28 @@ int BatchReactorHomogeneousConstantPressure::Equations(const double t, const Ope
 	thermodynamicsMap_.SetTemperature(T_);
 	thermodynamicsMap_.SetPressure(P0_);
 	
-	double CpMixMolar; 
-	thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-	CpMixMass_ = CpMixMolar / MW_;
-
 	// Calculates kinetics
 	kineticsMap_.SetTemperature(T_);
 	kineticsMap_.SetPressure(P0_);
 	kineticsMap_.KineticConstants();
 	kineticsMap_.ReactionRates(c_);
 	kineticsMap_.FormationRates(&R_);
-	const double QR_ = kineticsMap_.HeatRelease(R_);
+	
 
-	// Recovering residuals
+	// Species equations
 	for (unsigned int i=1;i<=NC_;++i)	
 		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho_;
-                
-	dy[NC_+1]  = QR_ / (rho_*CpMixMass_);
+		
+	// Energy equation
+    dy[NC_+1] = 0.;     
+    if (energyEquation_ == true)
+    {
+		double CpMixMolar; 
+		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
+		CpMixMass_ = CpMixMolar / MW_;
+		const double QR_ = kineticsMap_.HeatRelease(R_);
+		dy[NC_+1]  = QR_ / (rho_*CpMixMass_);
+	}
 
 	return 0;
 }

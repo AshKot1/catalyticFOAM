@@ -44,18 +44,16 @@ tmp<fv::convectionScheme<scalar> > mvConvection
 {
     double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
     
-    label inertIndex = -1;
     volScalarField Yt = 0.0*Y[0];
 
     for (label i=0; i<Y.size(); i++)
     {
-
-        if (Y[i].name() != inertSpecie)
+        if (i != inertIndex)
         {
             volScalarField& Yi = Y[i];
 	    	volScalarField& Dmixi = Dmix[i];
 
-	    	if (diffusivityCorrection != "none")
+	    	if (diffusivityCorrection != DIFFUSIVITY_CORRECTION_NONE)
 			{
 				dimensionedScalar Mi( "Mi", dimensionSet(1,0,0,0,-1,0,0), thermodynamicsMapXML->MW()[i+1] ); 
 
@@ -66,11 +64,11 @@ tmp<fv::convectionScheme<scalar> > mvConvection
 					dimensionedScalar Mj( "Mj", dimensionSet(1,0,0,0,-1,0,0), thermodynamicsMapXML->MW()[j+1] );
 					sumDiffusionCorrections += fvc::laplacian(rho*PMmix/Mj*Dmixi*Yi, Yj);
 				
-					if ( (i==j) && (diffusivityCorrection == "semi-implicit") )
+					if ( (i==j) && (diffusivityCorrection == DIFFUSIVITY_CORRECTION_SEMI_IMPLICIT) )
 						sumDiffusionCorrections -= fvc::laplacian(rho*PMmix/Mj*Dmixi*Yi, Yj);
 				}
 
-				if (diffusivityCorrection == "semi-implicit")
+				if (diffusivityCorrection == DIFFUSIVITY_CORRECTION_SEMI_IMPLICIT)
 				{
 					fvScalarMatrix YiEqn
 					(
@@ -88,7 +86,7 @@ tmp<fv::convectionScheme<scalar> > mvConvection
 					YiEqn.solve(mesh.solver("Yi"));
 					fvOptions.correct(Yi);						
 				}
-				else if (diffusivityCorrection == "explicit")
+				else if (diffusivityCorrection == DIFFUSIVITY_CORRECTION_EXPLICIT)
 				{					
 					fvScalarMatrix YiEqn
 					(
@@ -126,10 +124,6 @@ tmp<fv::convectionScheme<scalar> > mvConvection
             Yi.max(0.0);
             Yt += Yi;
         }
-        else
-        {
-		    inertIndex = i;
-	    }
     }
 
     Y[inertIndex] = scalar(1.0) - Yt;

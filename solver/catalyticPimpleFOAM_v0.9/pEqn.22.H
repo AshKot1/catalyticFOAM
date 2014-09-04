@@ -1,8 +1,6 @@
 rho = Rho(p,psi);
 
 volScalarField rAU(1.0/UEqn.A());
-surfaceScalarField rhorAUf("rhorAUf", fvc::interpolate(rho*rAU));
-
 volVectorField HbyA("HbyA", U);
 HbyA = rAU*UEqn.H();
 
@@ -13,12 +11,12 @@ if (pimple.transonic())
         "phid",
         fvc::interpolate(psi)
        *(
-            (fvc::interpolate(rho*HbyA) & mesh.Sf())
-          + rhorAUf*fvc::ddtCorr(rho, U, phi)
-        )/fvc::interpolate(rho)
+            (fvc::interpolate(HbyA) & mesh.Sf())
+          + fvc::ddtPhiCorr(rAU, rho, U, phi)
+        )
     );
 
-    fvOptions.makeRelative(fvc::interpolate(psi), phid);
+    fvOptions.relativeFlux(fvc::interpolate(psi), phid);
 
     while (pimple.correctNonOrthogonal())
     {
@@ -46,13 +44,14 @@ else
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        (
-            (fvc::interpolate(rho*HbyA) & mesh.Sf())
-          + rhorAUf*fvc::ddtCorr(rho, U, phi)
+        fvc::interpolate(rho)
+       *(
+            (fvc::interpolate(HbyA) & mesh.Sf())
+          + fvc::ddtPhiCorr(rAU, rho, U, phi)
         )
     );
 
-    fvOptions.makeRelative(fvc::interpolate(rho), phiHbyA);
+    fvOptions.relativeFlux(fvc::interpolate(rho), phiHbyA);
 
     while (pimple.correctNonOrthogonal())
     {
@@ -78,6 +77,7 @@ else
 
 #include "rhoEqn.H"
 
+//#include "compressibleContinuityErrs.H"
 {
     dimensionedScalar totalMass = fvc::domainIntegrate(rho);
 
@@ -95,12 +95,15 @@ else
         << endl;
 }
 
-
 U = HbyA - rAU*fvc::grad(p);
 U.correctBoundaryConditions();
 fvOptions.correct(U);
+K = 0.5*magSqr(U);
 
-//if (thermo.dpdt())
+// TOCHECK
+if (includeDpDt == true)
 {
-    dpdt = fvc::ddt(p);
+    //dpdt = fvc::ddt(p);
+    DpDt = fvc::DDt(surfaceScalarField("phiU", phi/fvc::interpolate(rho)), p);
 }
+

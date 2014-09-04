@@ -41,6 +41,10 @@ public:
 					OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap);
 
 	void SetReactor( const double V0, const double P0, const double rho0);
+	
+	void SetEnergyEquation(const bool flag) { energyEquation_ = flag; }
+	
+	void SetCheckMassFractions( const bool flag ) { checkMassFractions_ = flag; };
 
 	unsigned int NumberOfEquations() { return NE_; }
 
@@ -70,6 +74,8 @@ private:
 	OpenSMOKE::OpenSMOKEVectorDouble c_;
 	OpenSMOKE::OpenSMOKEVectorDouble R_;
 	
+	bool checkMassFractions_;
+	bool energyEquation_;
 };
 
 BatchReactorHomogeneousConstantVolume::BatchReactorHomogeneousConstantVolume(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap, 
@@ -84,6 +90,9 @@ BatchReactorHomogeneousConstantVolume::BatchReactorHomogeneousConstantVolume(	Op
 		ChangeDimensions(NC_, &x_, true);
 		ChangeDimensions(NC_, &c_, true);
 		ChangeDimensions(NC_, &R_, true);
+		
+		checkMassFractions_ = false;
+		energyEquation_ = true;
 	}
 
 void BatchReactorHomogeneousConstantVolume::SetReactor( const double V0, const double P0, const double rho0)
@@ -96,13 +105,15 @@ void BatchReactorHomogeneousConstantVolume::SetReactor( const double V0, const d
 int BatchReactorHomogeneousConstantVolume::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
 {
 	// Recover mass fractions
-	#ifdef CHECK_MASSFRACTIONS
-	for(unsigned int i=1;i<=NC_;++i)
-		omega_[i] = max(y[i], 0.);
-	#else
-	for(unsigned int i=1;i<=NC_;++i)
-		omega_[i] = y[i];
-	#endif
+	if (checkMassFractions_ == true)
+	{	for(unsigned int i=1;i<=NC_;++i)
+			omega_[i] = max(y[i], 0.);
+	}
+	else
+	{
+		for(unsigned int i=1;i<=NC_;++i)
+			omega_[i] = y[i];
+	}
 
 	// Recover temperature
 	T_ = y[NC_+1];
@@ -117,26 +128,28 @@ int BatchReactorHomogeneousConstantVolume::Equations(const double t, const OpenS
 	thermodynamicsMap_.SetTemperature(T_);
 	thermodynamicsMap_.SetPressure(P_);
 	
-	double CpMixMolar; 
-	thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-	CvMixMass_ = (CpMixMolar - PhysicalConstants::R_J_kmol) / MW_;
-
 	// Calculates kinetics
 	kineticsMap_.SetTemperature(T_);
 	kineticsMap_.SetPressure(P_);
 	kineticsMap_.KineticConstants();
 	kineticsMap_.ReactionRates(c_);
 	kineticsMap_.FormationRates(&R_);
-	const double QR_ = kineticsMap_.HeatRelease(R_);
-
-	// Number of moles
-	const double sumMoleFormationRates = R_.SumElements();
-
-	// Recovering residuals
+	
+	// Species equations
 	for (unsigned int i=1;i<=NC_;++i)	
 		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho0_;
-                
-	dy[NC_+1]  = (QR_ + PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / (rho0_*CvMixMass_);
+    
+	// Energy equation
+    dy[NC_+1] = 0.;     
+    if (energyEquation_ == true)
+    {
+		double CpMixMolar; 
+		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
+		CvMixMass_ = (CpMixMolar - PhysicalConstants::R_J_kmol) / MW_;
+		const double QR_ = kineticsMap_.HeatRelease(R_);
+		const double sumMoleFormationRates = R_.SumElements();
+		dy[NC_+1]  = (QR_ + PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / (rho0_*CvMixMass_);
+	}
 
 	return 0;
 }

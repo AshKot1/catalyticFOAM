@@ -35,7 +35,7 @@
     if(energyEquation == true)
     {
 		sumCpSpecies *= 0.;
-		if (iMassDiffusionContributionInEnergyEquation == true)
+		if (iMassDiffusionInEnergyEquation == true)
 		{
 
 			for (label i=0; i<Y.size(); i++)
@@ -54,7 +54,7 @@
 			cp*fvm::div(phi, T)
 		 ==
 		    fvm::laplacian(lambda,T) + 
-		    sumCpSpecies +
+		    sumCpSpecies + DpDt +
 			cp*fvOptions(rho, T)
 		);
 
@@ -67,11 +67,6 @@
 
     Info<< " * T gas min/max   = " << min(T).value() << ", " << max(T).value() << endl;
 
-    if( (spark == true) && (runTime.value() >= ignitionTime) && (runTime.value() <= (ignitionTime+duration)) ) 
-    {
-        for(int i = 0; i<nIgnCells; i++)
-        {
-            T[ignCellsList[i]] = ignitionTemperature;
-        }
-    }
+	// Spark
+	spark.SetSpark(runTime.value(), T);
 }

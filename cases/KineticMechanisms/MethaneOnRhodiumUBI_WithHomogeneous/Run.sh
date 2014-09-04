@@ -1,3 +1,3 @@
 rm -r MethaneOn*
 
-../exe/CHEMKINInterpreter
+../exe/OpenSMOKE_CHEMKIN_PreProcessor.sh

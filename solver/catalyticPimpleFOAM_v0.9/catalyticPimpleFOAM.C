@@ -29,39 +29,32 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-// Basic header files
-#include <string>
-#include <iostream>
-#include <numeric>
-#include <stdio.h>
 
-// Eigen libraries
-#include <Eigen/Dense>
+// OpenSMOKE++ Definitions
+#include "OpenSMOKEpp"
 
-// OpenSMOKE
-#include "OpenSMOKE_Definitions.h"
+// CHEMKIN maps
+#include "maps/Maps_CHEMKIN"
 
-// Base classes
-#include "thermo/ThermoPolicy_CHEMKIN.h"
-#include "kinetics/ReactionPolicy_CHEMKIN.h"
-#include "kinetics/ReactionPolicy_Surface_CHEMKIN.h"
-#include "math/PhysicalConstants.h"
-#include "math/OpenSMOKEUtilities.h"
-#include "dictionary/OpenSMOKE_Dictionary.h"
-
-// Maps
-#include "maps/ThermodynamicsMap_CHEMKIN.h"
-#include "maps/KineticsMap_CHEMKIN.h"
-#include "maps/ThermodynamicsMap_Surface_CHEMKIN.h"
-#include "maps/KineticsMap_Surface_CHEMKIN.h"
-#include "maps/TransportPropertiesMap_CHEMKIN.h"
+// Reactor utilities
+#include "reactors/utilities/Utilities"
 
 // Additional classes
 #include "catalyticReactorClass.H"
 
-// ODE system
+// ODE solvers
+#include "math/multivalue-ode-solvers/MultiValueSolver"
 #include "ode/ODE_Parameters.h"
-#include "math/stiff-ode-solvers/StiffOdeSolverObject_Dense.h"
+
+// OpenFOAM
+#include "fvCFD.H"
+#include "multivariateScheme.H"
+#include "pimpleControl.H"
+#include "fvIOoptionList.H"
+
+// Additional include files
+#include "sparkModel.H"
+#include "userDefinedFunctions.H"
 
 // Homogeneous reactors
 #include "BatchReactorHomogeneousConstantPressure.H"
@@ -75,20 +68,6 @@ Description
 #include "BatchReactorHeterogeneousConstantVolume.H"
 #include "BatchReactorHeterogeneousConstantVolume_ODE_Interface.H"
 
-// OpenFOAM
-#include "fvCFD.H"
-#include "multivariateScheme.H"
-#include "pimpleControl.H"
-#include "fvIOoptionList.H"
-
-// Radiative heat transfer
-//#include "radiationModel.H"
-
-// Utilities
-//#include "Utilities.H"
-#include "userDefinedFunctions.H"
-
-enum odesolver_enum { ODESOLVER_OPENSMOKE, ODESOLVER_DVODE, ODESOLVER_DLSODE, ODESOLVER_DLSODA, ODESOLVER_CVODE, ODESOLVER_DASPK, ODESOLVER_MEBDF, ODESOLVER_RADAU5 } ;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -128,24 +107,24 @@ int main(int argc, char *argv[])
 
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        
-        if (strangAlgorithm == "ReactionTransport")
+
+        if (strangAlgorithm == STRANG_REACTION_TRANSPORT)
 	{
 		#include "Policy_ReactionTransport.H"
 	}
-	else if (strangAlgorithm == "TransportReaction")
+	else if (strangAlgorithm == STRANG_TRANSPORT_REACTION)
 	{
 		#include "Policy_TransportReaction.H"
 	}
-	else if (strangAlgorithm == "TransportReactionMomentum")
+	else if (strangAlgorithm == STRANG_TRANSPORT_REACTION_MOMENTUM)
 	{
 		#include "Policy_TransportReactionMomentum.H"
 	}
-	else if (strangAlgorithm == "ReactionTransportReaction")
+	else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_REACTION)
 	{
 		#include "Policy_ReactionTransportReaction.H"
 	}
-	else if (strangAlgorithm == "ReactionTransportHybrid")
+	else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_HYBRID)
 	{
 		#include "Policy_ReactionTransportHybrid.H"
 	}
