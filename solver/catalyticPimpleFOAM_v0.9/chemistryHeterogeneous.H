@@ -53,7 +53,7 @@
 					if (constPressureBatchReactor == true)
 					{
 						// Set reactor data
-						batchReactorHeterogeneousConstantPressure.SetReactor(pCells[celli], totalCatalyticAreaCell);
+						batchReactorHeterogeneousConstantPressure.SetReactor(pCells[celli], totalCatalyticAreaCell, AlfaCatalyst);
 						batchReactorHeterogeneousConstantPressure.SetEnergyEquation(energyEquation);
 				
 						// Set initial conditions
@@ -82,7 +82,7 @@
 					else
 					{
 						// Set reactor data
-						batchReactorHeterogeneousConstantVolume.SetReactor(catalyticReactors[counter].volume, totalCatalyticAreaCell);
+						batchReactorHeterogeneousConstantVolume.SetReactor(catalyticReactors[counter].volume, totalCatalyticAreaCell, AlfaCatalyst);
 						batchReactorHeterogeneousConstantVolume.SetEnergyEquation(energyEquation);
 				
 						// Set initial conditions
@@ -205,7 +205,7 @@
 					{
 
 						// Set reactor data
-						batchReactorHeterogeneousConstantPressure.SetReactor(pCells[celli], totalCatalyticAreaCell);
+						batchReactorHeterogeneousConstantPressure.SetReactor(pCells[celli], totalCatalyticAreaCell,AlfaCatalyst);
 						batchReactorHeterogeneousConstantPressure.SetCheckMassFractions(true);
 						batchReactorHeterogeneousConstantPressure.SetEnergyEquation(energyEquation);
 
@@ -263,7 +263,7 @@
 					{
 						
 						// Set reactor data
-						batchReactorHeterogeneousConstantVolume.SetReactor(catalyticReactors[counter].volume, totalCatalyticAreaCell);
+						batchReactorHeterogeneousConstantVolume.SetReactor(catalyticReactors[counter].volume, totalCatalyticAreaCell,AlfaCatalyst);
 						batchReactorHeterogeneousConstantPressure.SetCheckMassFractions(true);
 						batchReactorHeterogeneousConstantVolume.SetEnergyEquation(energyEquation);
 							

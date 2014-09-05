@@ -42,7 +42,7 @@ public:
 												OpenSMOKE::ThermodynamicsMap_Surface_CHEMKIN<double>& thermodynamicsSurfaceMap, 
 												OpenSMOKE::KineticsMap_Surface_CHEMKIN<double>& kineticsSurfaceMap);
 
-	void SetReactor( const double V0, const double A );
+	void SetReactor( const double V0, const double A, const double alfaCatalyst);
 	
 	void SetEnergyEquation(const bool flag) { energyEquation_ = flag; }
 	
@@ -58,6 +58,7 @@ private:
 
 	double T_;
 	double A_;
+	double alfaCatalyst_;
 	double V0_;
 	double MW_;
 	double mass_;
@@ -122,10 +123,11 @@ BatchReactorHeterogeneousConstantVolume::BatchReactorHeterogeneousConstantVolume
 		energyEquation_ = true;
 	}
 
-void BatchReactorHeterogeneousConstantVolume::SetReactor( const double V0, const double A)
+void BatchReactorHeterogeneousConstantVolume::SetReactor( const double V0, const double A, const double alfaCatalyst)
 {
 	V0_    = V0;
 	A_     = A;
+	alfaCatalyst_ = alfaCatalyst;
 }
 
 int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
@@ -191,11 +193,11 @@ int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const Ope
 	}
 	
 	// Variation of gas mass in the reactor
-	const double dm_over_dt = A_*Dot(RfromSurface_, thermodynamicsMap_.MW());
+	const double dm_over_dt = A_*alfaCatalyst_*Dot(RfromSurface_, thermodynamicsMap_.MW());
 
 	// Number of moles
 	const double moles = cTot_*V0_;
-	const double sumMoleFormationRates = V0_*RfromGas_.SumElements() + A_*RfromSurface_.SumElements();
+	const double sumMoleFormationRates = V0_*RfromGas_.SumElements() + A_*alfaCatalyst_*RfromSurface_.SumElements();
 		
 	// Recovering residuals
 	{
@@ -204,7 +206,7 @@ int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const Ope
 		// Gas phase species
 		for (unsigned int i=1;i<=NC_;++i)	
 			dy[k++] = thermodynamicsMap_.MW()[i]*RfromGas_[i]/rho_ +
-					 (-omega_[i]*dm_over_dt + A_*RfromSurface_[i]*thermodynamicsMap_.MW()[i])/mass_;
+					 (-omega_[i]*dm_over_dt + A_*alfaCatalyst_*RfromSurface_[i]*thermodynamicsMap_.MW()[i])/mass_;
 		
 		// Total mass
 		dy[k++] = dm_over_dt;
@@ -232,7 +234,7 @@ int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const Ope
 			QRGas_ = kineticsMap_.HeatRelease(RfromGas_);
 			QRSurface_ = kineticsSurfaceMap_.HeatRelease(RfromSurface_, Rsurface_, dummy);
 			
-			dy[k++] = (V0_*QRGas_+ A_*QRSurface_+PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / 
+			dy[k++] = (V0_*QRGas_+ A_*alfaCatalyst_*QRSurface_+PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / 
 							(mass_*CpMixMass_ - PhysicalConstants::R_J_kmol*moles);
 		}
 	}

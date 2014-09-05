@@ -42,7 +42,7 @@ public:
 												OpenSMOKE::ThermodynamicsMap_Surface_CHEMKIN<double>& thermodynamicsSurfaceMap, 
 												OpenSMOKE::KineticsMap_Surface_CHEMKIN<double>& kineticsSurfaceMap);
 
-	void SetReactor( const double P0, const double A);
+	void SetReactor( const double P0, const double A, const double alfaCatalyst);
 	
 	void SetEnergyEquation(const bool flag) { energyEquation_ = flag; }
 	
@@ -59,6 +59,7 @@ private:
 	double T_;
 	double P0_;
 	double A_;
+	double alfaCatalyst_;
 	double MW_;
 	double mass_;
 
@@ -122,10 +123,11 @@ BatchReactorHeterogeneousConstantPressure::BatchReactorHeterogeneousConstantPres
 		energyEquation_ = true;
 	}
 
-void BatchReactorHeterogeneousConstantPressure::SetReactor( const double P0, const double A)
+void BatchReactorHeterogeneousConstantPressure::SetReactor( const double P0, const double A, const double alfaCatalyst)
 {
 	P0_    = P0;
 	A_     = A;
+	alfaCatalyst_ = alfaCatalyst;
 }
 
 int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
@@ -189,7 +191,7 @@ int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const O
 		kineticsSurfaceMap_.FormationRates(&RfromSurface_, &Rsurface_, &dummy, &RsurfacePhases_);
 	}
 	
-	double dm_over_dt = A_*Dot(RfromSurface_, thermodynamicsMap_.MW());
+	double dm_over_dt = A_*alfaCatalyst_*Dot(RfromSurface_, thermodynamicsMap_.MW());
 
 	// Recovering residuals
 	{
@@ -198,7 +200,7 @@ int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const O
 		// Gas phase species
 		for (unsigned int i=1;i<=NC_;++i)	
 			dy[k++] = thermodynamicsMap_.MW()[i]*RfromGas_[i]/rho_ +
-					 (-omega_[i]*dm_over_dt + A_*RfromSurface_[i]*thermodynamicsMap_.MW()[i])/mass_;
+					 (-omega_[i]*dm_over_dt + A_*alfaCatalyst_*RfromSurface_[i]*thermodynamicsMap_.MW()[i])/mass_;
 		
 		// Total mass
 		dy[k++] = dm_over_dt;
@@ -226,7 +228,7 @@ int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const O
 			QRGas_ = kineticsMap_.HeatRelease(RfromGas_);
 			QRSurface_ = kineticsSurfaceMap_.HeatRelease(RfromSurface_, Rsurface_, dummy);
 			
-			dy[k++] = (V_*QRGas_+ A_*QRSurface_) / (mass_*CpMixMass_);
+			dy[k++] = (V_*QRGas_+ A_*alfaCatalyst_*QRSurface_) / (mass_*CpMixMass_);
 		}
 	}
 		
