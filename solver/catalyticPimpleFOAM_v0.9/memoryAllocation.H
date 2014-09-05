@@ -43,7 +43,7 @@
 	#include "createHomogeneousOdeSolvers.H"
 
 	// Batch reactor heterogeneous
-	BatchReactorHeterogeneousConstantPressure 	batchReactorHeterogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
-	BatchReactorHeterogeneousConstantVolume 	batchReactorHeterogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
+	BatchReactorHeterogeneousConstantPressure 	batchReactorHeterogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML, *surfaceThermodynamicsMapXML, *surfaceKineticsMapXML);
+	BatchReactorHeterogeneousConstantVolume 	batchReactorHeterogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML, *surfaceThermodynamicsMapXML, *surfaceKineticsMapXML);
 	#include "createHeterogeneousOdeSolvers.H"
 

@@ -1,6 +1,6 @@
 	if (homogeneousReactions == true)
 	{
-		if (homogeneousReactions == true && odeParameterBatchReactorHomogeneous.type() == OpenSMOKE::ODE_Parameters::ODE_INTEGRATOR_OPENSMOKE)
+		if (odeParameterBatchReactorHomogeneous.type() == OpenSMOKE::ODE_Parameters::ODE_INTEGRATOR_OPENSMOKE)
 		{
 			const unsigned int NC  = thermodynamicsMapXML->NumberOfSpecies();
 			const unsigned int NEQ = thermodynamicsMapXML->NumberOfSpecies()+1;
@@ -58,7 +58,7 @@
 							}
 							else
 							{
-								// Set reactor pressure
+								// Set reactor
 								batchReactorHomogeneousConstantVolume.SetReactor(vCells[celli], pCells[celli], rhoCells[celli]);
 								batchReactorHomogeneousConstantVolume.SetEnergyEquation(energyEquation);
 								
@@ -87,7 +87,6 @@
 							}
 						}
 		
-		
 						// Check mass fractions
 						normalizeMassFractions(yf, celli, massFractionsTol);
 
@@ -109,7 +108,7 @@
 				Info << "   Homogeneous chemistry solved in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(totalNumberOfNonCatalyticReactors)*1000. << " ms per reactor)" << endl;
 			}
 		}
-		else if (homogeneousReactions == true && odeParameterBatchReactorHomogeneous.type() != OpenSMOKE::ODE_Parameters::ODE_INTEGRATOR_OPENSMOKE)
+		else if (odeParameterBatchReactorHomogeneous.type() != OpenSMOKE::ODE_Parameters::ODE_INTEGRATOR_OPENSMOKE)
 		{
 			const unsigned int NC  = thermodynamicsMapXML->NumberOfSpecies();
 			const unsigned int NEQ = thermodynamicsMapXML->NumberOfSpecies()+1;

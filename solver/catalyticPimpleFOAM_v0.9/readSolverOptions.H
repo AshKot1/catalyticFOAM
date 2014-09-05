@@ -104,6 +104,7 @@
 	
 	//- Mass fractions tolerance
 	scalar massFractionsTol = 1e-10;
+	scalar siteFractionsTol = 1e-6;
 
 	//- Internal models
 	enum { DIFFUSIVITY_CORRECTION_NONE, DIFFUSIVITY_CORRECTION_SEMI_IMPLICIT, DIFFUSIVITY_CORRECTION_EXPLICIT} diffusivityCorrection;

@@ -68,6 +68,19 @@ Description
 #include "BatchReactorHeterogeneousConstantVolume.H"
 #include "BatchReactorHeterogeneousConstantVolume_ODE_Interface.H"
 
+template<typename Solver, typename OdeBatch>
+void SolveOpenSourceSolvers(OdeBatch& ode, const double t0, const double tf, const OpenSMOKE::OpenSMOKEVectorDouble& y0, OpenSMOKE::OpenSMOKEVectorDouble& yf, const OpenSMOKE::ODE_Parameters& parameters)
+{
+	Solver o(ode);
+	o.SetDimensions(y0.Size());
+	o.SetAbsoluteTolerance(parameters.absolute_tolerance());
+	o.SetRelativeTolerance(parameters.relative_tolerance());
+	o.SetAnalyticalJacobian(false);
+	o.SetInitialValues(t0, y0.GetHandle());
+	o.Solve(tf);
+	o.Solution(yf.GetHandle());
+}	
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

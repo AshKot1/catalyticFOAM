@@ -1,5 +1,5 @@
 #OpenFOAM VERSION (22 or 23)
-export OPENFOAM_VERSION='-DOPENFOAM_VERSION=22'
+export OPENFOAM_VERSION='-DOPENFOAM_VERSION=23'
 
 #Compulsory path
 export EIGEN_LIBRARY_PATH=$HOME/NumericalLibraries/Eigen/eigen-3.2
@@ -14,7 +14,7 @@ export EXTERNAL_ODE_SOLVERS=
 
 
 #Only if the OPENSMOKE_USE_MKL is turned on
-export MKL_PATH=$HOME/intel/mkl
+export MKL_PATH=/opt/intel/mkl
 export MKL_INCLUDE='$(MKL_PATH)/include'
 export MKL_LIBS='-Wl,--start-group $(MKL_PATH)/lib/intel64/libmkl_intel_lp64.a $(MKL_PATH)/lib/intel64/libmkl_core.a $(MKL_PATH)/lib/intel64/libmkl_sequential.a -Wl,--end-group -lpthread -lm'
 

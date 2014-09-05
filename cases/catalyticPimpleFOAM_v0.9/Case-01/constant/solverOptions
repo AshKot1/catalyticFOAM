@@ -15,44 +15,66 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    energyEquation   on; 
+Kinetics
+{
+	folder	   		"/home/alberto/OpenFOAM/alberto-2.3.x/mySolvers/catalyticFOAM/cases/KineticMechanisms/MethaneOnRhodiumUBI/MethaneOnRhodiumUBI";
+	//folder	   		"/home/alberto/OpenFOAM/alberto-2.3.x/mySolvers/catalyticFOAM/cases/KineticMechanisms/MethaneOnRhodiumUBI_WithHomogeneous/MethaneOnRhodiumUBI";
+	inertSpecies 		N2;
+}
 
-    homogeneousReactions on;
+PhysicalModel
+{
+	strangAlgorithm 		"TransportReactionMomentum";
+	homogeneousReactions 		off;
+	heterogeneousReactions 		on;
 
-    heterogeneousReactions on;
+	alfaCatalyst 			1500.0;
 
-    inertSpecie N2;
+	energyEquation			on;
+	constPressureBatchReactor 	false;
 
-    //kineticsFolder       "../../../cases/KineticMechanisms/MethaneOnRhodiumUBI/MethaneOnRhodiumUBI";
-    kineticsFolder       "/home/alberto/OpenFOAM/alberto-2.3.x/mySolvers/catalyticFOAM/cases/KineticMechanisms/MethaneOnRhodiumUBI_WithHomogeneous/MethaneOnRhodiumUBI";
+	massDiffusionInEnergyEquation	on;
+	diffusivityCorrection		"semi-implicit";
+	diffusivityModel		"multi-component";		// lewis-numbers
 
-    spark off;
+	includeDpDt			off;
+}
 
-    alfaCatalyst 1500.0;
+OdeHomogeneous
+{
+	odeSolver 	"OpenSMOKE";
+	relTolerance 	1e-7;
+	absTolerance 	1e-12;
+	maximumOrder 	5;
+	fullPivoting 	false;
+}
 
-	// Species transport equations
-   	massFractionsTolerance 1.e-9;
-    diffusivityCorrection "semi-implicit";
-    massDiffusionContributionInEnergyEquation on;
+OdeHeterogeneous
+{
+	odeSolver 	"RADAU5";
+	relTolerance 	1e-8;
+	absTolerance 	1e-14;
+	maximumOrder 	5;
+	fullPivoting 	false;
+}
 
-	// Numerical algorithm
-	strangAlgorithm "TransportReactionMomentum";
+Spark
+{
+	spark 		off;
+	position    	(5.95e-3  0.0 1.5e-3);
+	time		0.;
+	temperature 	2205;
+	duration 	0.025;
+	diameter 	1.5e-3;
+}
 
-	// Batch reactors
-	constantPressure 	on;
-	homogeneousODESolver 	OpenSMOKE;
-	heterogeneousODESolver 	OpenSMOKE;
-
-	// Tolerances
-	relToleranceHomogeneous 1e-6;
-	absToleranceHomogeneous 1e-12;
-	relToleranceHeterogeneous 1e-6;
-	absToleranceHeterogeneous 1e-12;
-
-	// Radiative heat transfer
-	radiativeHeatTransfer   off;
-	environmentTemperature 300.;
-    
+LewisNumbers
+{
+	O2  1.0;
+	H2  1.1;
+	H2O 1.2;
+	N2  1.3;
+}
 
 // ************************************************************************* //
 
