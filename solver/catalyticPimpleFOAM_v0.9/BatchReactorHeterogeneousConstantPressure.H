@@ -218,7 +218,6 @@ int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const O
 		}
 		
 		// Energy equation
-		dy[k++] = 0.;
 		if (energyEquation_ == true)
 		{
 			double CpMixMolar; 
@@ -229,6 +228,10 @@ int BatchReactorHeterogeneousConstantPressure::Equations(const double t, const O
 			QRSurface_ = kineticsSurfaceMap_.HeatRelease(RfromSurface_, Rsurface_, dummy);
 			
 			dy[k++] = (V_*QRGas_+ A_*alfaCatalyst_*QRSurface_) / (mass_*CpMixMass_);
+		}
+		else
+		{
+			dy[k++] = 0.;
 		}
 	}
 		

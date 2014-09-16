@@ -224,7 +224,6 @@ int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const Ope
 		}
 			
 		// Energy equation
-		dy[k++] = 0.;
 		if (energyEquation_ == true)
 		{
 			double CpMixMolar; 
@@ -236,6 +235,10 @@ int BatchReactorHeterogeneousConstantVolume::Equations(const double t, const Ope
 			
 			dy[k++] = (V0_*QRGas_+ A_*alfaCatalyst_*QRSurface_+PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / 
 							(mass_*CpMixMass_ - PhysicalConstants::R_J_kmol*moles);
+		}
+		else
+		{
+			dy[k++] = 0.;
 		}
 	}
 		

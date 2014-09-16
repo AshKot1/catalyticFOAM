@@ -138,9 +138,9 @@ int BatchReactorHomogeneousConstantPressure::Equations(const double t, const Ope
 		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho_;
 		
 	// Energy equation
-    dy[NC_+1] = 0.;     
-    if (energyEquation_ == true)
-    {
+   	dy[NC_+1] = 0.;     
+    	if (energyEquation_ == true)
+   	{
 		double CpMixMolar; 
 		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
 		CpMixMass_ = CpMixMolar / MW_;
